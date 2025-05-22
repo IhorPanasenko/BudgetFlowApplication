@@ -5,6 +5,7 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
+    "start-emulator": "emulator -avd Pixel_9_Pro_XL",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
