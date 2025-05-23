@@ -1,5 +1,4 @@
 import { Timestamp } from "firebase/firestore"
-
 import { Icon } from "phosphor-react-native"
 
 import React, { ReactNode } from "react"
@@ -62,6 +61,11 @@ export type HeaderProps = {
   style?: ViewStyle
   leftIcon?: ReactNode
   rightIcon?: ReactNode
+}
+
+export type BackButtonProps = {
+  style?: ViewStyle;
+  iconSize?: number;
 }
 
 export type TransactionType = {

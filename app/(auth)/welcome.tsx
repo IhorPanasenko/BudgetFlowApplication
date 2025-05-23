@@ -1,22 +1,28 @@
-import Button from "@/components/Button"
-import ScreenWrapper from "@/components/ScreenWrapper"
-import Typo from "@/components/Typo"
-import { colors, spacingX, spacingY } from "@/contansts/theme"
-import { verticalScale } from "@/utilts/styling"
-
-import React from "react"
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native"
+import Button from "@/components/Button";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import Typo from "@/components/Typo";
+import { colors, spacingX, spacingY } from "@/contansts/theme";
+import { verticalScale } from "@/utilts/styling";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 const Welcome = () => {
+  const router = useRouter();
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         <View>
-          <TouchableOpacity style={styles.loginButton}>
-            <Typo fontWeight={"500"}>Реєстрація</Typo>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/login")}
+            style={styles.loginButton}
+          >
+            <Typo fontWeight={"500"}>Вхід</Typo>
           </TouchableOpacity>
 
-          <Image
+          <Animated.Image
+            entering={FadeIn.duration(1000)}
             source={require("../../assets/images/welcome.png")}
             style={styles.welcomeImage}
             resizeMode="contain"
@@ -25,46 +31,57 @@ const Welcome = () => {
         {/* footer */}
 
         <View style={styles.footer}>
-          <View style={{ alignItems: "center" }}>
-            <Typo size={17} fontWeight={"800"} color={colors.textLight}>
+          <Animated.View
+            entering={FadeInDown.duration(1000).springify().damping(12)}
+            style={{ alignItems: "center" }}
+          >
+            <Typo size={25} fontWeight={"800"} color={colors.textLight}>
               Завжди контролюй
             </Typo>
 
-            <Typo size={17} fontWeight={"800"} color={colors.textLight}>
+            <Typo size={25} fontWeight={"800"} color={colors.textLight}>
               свої фінанси
             </Typo>
-          </View>
+          </Animated.View>
 
-          <View style={styles.buttonContainer}>
-            <Button>
-              <Typo>Почати</Typo>
+          <Animated.View
+            entering={FadeInDown.duration(1000)
+              .delay(200)
+              .springify()
+              .damping(12)}
+            style={styles.buttonContainer}
+          >
+            <Button onPress={() => router.push("/(auth)/register")}>
+              <Typo size={22} color={colors.neutral900} fontWeight={"600"}>
+                Почати
+              </Typo>
             </Button>
-          </View>
+          </Animated.View>
         </View>
       </View>
     </ScreenWrapper>
-  )
-}
+  );
+};
 
-export default Welcome
+export default Welcome;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "space-between",
-    paddingTop: spacingY._7
+    paddingTop: spacingY._7,
   },
 
   welcomeImage: {
     width: "100%",
     height: verticalScale(300),
     alignSelf: "center",
-    marginTop: verticalScale(100)
+    marginTop: verticalScale(100),
   },
 
   loginButton: {
     alignSelf: "flex-end",
-    marginRight: spacingX._20
+    marginRight: spacingX._20,
   },
 
   footer: {
@@ -77,11 +94,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -10 },
     elevation: 10,
     shadowRadius: 25,
-    shadowOpacity: 0.15
+    shadowOpacity: 0.15,
   },
 
   buttonContainer: {
     width: "100%",
-    paddingHorizontal: spacingX._25
-  }
-})
+    paddingHorizontal: spacingX._25,
+  },
+});

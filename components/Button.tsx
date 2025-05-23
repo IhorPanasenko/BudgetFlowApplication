@@ -1,35 +1,32 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native"
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
-import { colors, radius } from "@/contansts/theme"
-import { CustomButtonProps } from "@/types"
-import { verticalScale } from "@/utilts/styling"
-import React from "react"
-import Loading from "./Loading"
+import { colors, radius } from "@/contansts/theme";
+import { CustomButtonProps } from "@/types";
+import { verticalScale } from "@/utilts/styling";
+import React from "react";
+import Loading from "./Loading";
 
 const Button = ({
   style,
-
   onPress,
-
   loading = false,
-
-  children
+  children,
 }: CustomButtonProps) => {
   if (loading) {
     return (
       <View style={[styles.button, style, { backgroundColor: "transparent" }]}>
         <Loading />
       </View>
-    )
+    );
   }
   return (
     <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
       {children}
     </TouchableOpacity>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;
 
 const styles = StyleSheet.create({
   button: {
@@ -38,6 +35,6 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
     height: verticalScale(52),
     justifyContent: "center",
-    alignItems: "center"
-  }
-})
+    alignItems: "center",
+  },
+});
