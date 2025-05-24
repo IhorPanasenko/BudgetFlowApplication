@@ -150,7 +150,7 @@ export type AuthContextType = {
     email: string,
     password: string
   ) => Promise<{ success: boolean; msg?: string }>
-  register: (
+  registerUser: (
     email: string,
     password: string,
     name: string

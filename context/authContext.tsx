@@ -1,11 +1,13 @@
 import { auth, firestore } from "@/config/firebase";
 import { AuthContextType, UserType } from "@/types";
+import { useRouter } from "expo-router";
 import {
     createUserWithEmailAndPassword,
+    onAuthStateChanged,
     signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -13,18 +15,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserType>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || null,
+          name: firebaseUser.displayName || null,
+        });
+        updateUserData(firebaseUser.uid);
+        router.replace("/(tabs)");
+      } else {
+        setUser(null);
+        router.replace("/(auth)/welcome");
+      }
+    });
+
+    return () => {
+      unsub();
+    };
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true };
     } catch (error: any) {
-      const msg = error.message;
+      let msg = error.message;
+      console.error("Login error: ", msg);
+
+      if (msg.includes("auth/invalid-credential")) {
+        msg = "Invalid email or password. Please try again.";
+      }
+
+      if (msg.includes("auth/invalid-email")) {
+        msg = "Invalid email. Please enter a valid email address.";
+      }
+
       return { success: false, msg };
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const registerUser = async (
+    email: string,
+    password: string,
+    name: string
+  ) => {
     try {
       const response = await createUserWithEmailAndPassword(
         auth,
@@ -39,7 +77,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return { success: true };
     } catch (error: any) {
-      const msg = error.message;
+      let msg = error.message;
+      if (msg.includes("auth/email-already-in-use")) {
+        msg = "Email already in use. Please use a different email.";
+      }
       return { success: false, msg };
     }
   };
@@ -70,14 +111,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     user,
     setUser,
     login,
-    register,
+    registerUser,
     updateUserData,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-        {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 

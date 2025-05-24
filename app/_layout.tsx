@@ -1,18 +1,18 @@
-import { AuthProvider } from "@/context/authContext"
-import { Stack } from "expo-router"
-import React from "react"
-import { StyleSheet } from "react-native"
+import { AuthProvider } from "@/context/authContext";
+import { Stack } from "expo-router";
+import React from "react";
+import { StyleSheet } from "react-native";
 
 const StackLayout = () => {
-  return <Stack screenOptions={{ headerShown: false }}></Stack>
-}
+  return <Stack screenOptions={{ headerShown: false }}></Stack>;
+};
 
 export default function RootLayout() {
   return (
     <AuthProvider>
       <StackLayout></StackLayout>
     </AuthProvider>
-  )
+  );
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

@@ -17,7 +17,7 @@ const Register = () => {
   const passwordRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { register: registerUser } = useAuth();
+  const { registerUser } = useAuth();
 
   const handleSubmit = async () => {
     if (!emailRef.current || !emailRef.current || !nameRef.current) {
@@ -27,9 +27,9 @@ const Register = () => {
 
     setIsLoading(true);
     const res = await registerUser(
-      nameRef.current,
       emailRef.current,
-      passwordRef.current
+      passwordRef.current,
+      nameRef.current,
     );
     console.log("registrationresult: ", res);
 

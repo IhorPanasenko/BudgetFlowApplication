@@ -1,15 +1,14 @@
-import { colors } from "@/contansts/theme"
-import { useRouter } from "expo-router"
-import React, { useEffect } from "react"
-import { Image, StyleSheet, View } from "react-native"
+import { colors } from "@/contansts/theme";
+import React from "react";
+import { Image, StyleSheet, View } from "react-native";
 
 const index = () => {
-  const router = useRouter()
-  useEffect(() => {
-    setTimeout(() => {
-      router.push("/welcome")
-    }, 2000)
-  }, [])
+  // const router = useRouter()
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     router.push("/(auth)/welcome")
+  //   }, 2000)
+  // }, [])
   return (
     <View style={styles.container}>
       <Image
@@ -18,20 +17,20 @@ const index = () => {
         source={require("../assets/images/logo.png")}
       />
     </View>
-  )
-}
+  );
+};
 
-export default index
+export default index;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.neutral900
+    backgroundColor: colors.neutral900,
   },
   logo: {
     height: "20%",
-    aspectRatio: 1
-  }
-})
+    aspectRatio: 1,
+  },
+});
