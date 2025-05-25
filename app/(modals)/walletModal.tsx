@@ -1,111 +1,88 @@
 import BackButton from "@/components/BackButton";
 import Button from "@/components/Button";
 import Header from "@/components/Header";
+import ImageUpload from "@/components/ImageUpload";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
-import { getProfileImage } from "@/services/imageService";
-import { updateUser } from "@/services/userService";
-import { UserDataType } from "@/types";
+import { createUpdateWallet } from "@/services/walletService";
+import { WalletType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
-import { Image } from "expo-image";
-import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import * as Icons from "phosphor-react-native";
-import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useState } from "react";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
-const ProfileModal = () => {
-  const { user, updateUserData } = useAuth();
+const WalletModal = () => {
+  const { user } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    setUserData({
-      name: user?.name || "",
-      image: user?.image || null,
-    });
-  }, [user]);
-
-  const [userData, setUserData] = useState<UserDataType>({
+  const [wallet, setWallet] = useState<WalletType>({
     name: "",
     image: null,
   });
 
   const [loading, setLoading] = useState(false);
 
-  const onPickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      aspect: [4, 3],
-      quality: 0.5,
-    });
-
-    if (!result.canceled && result.assets && result.assets[0]) {
-      setUserData({ ...userData, image: result.assets[0] });
-    }
-  };
-
   const onSubmit = async () => {
-    let { name, image } = userData;
+    let { name, image } = wallet;
     if (!name.trim()) {
       Alert.alert("User", "Name cannot be empty");
       return;
     }
 
+    if (!image) {
+      Alert.alert("User", "Please, upload an image");
+      return;
+    }
+
+    const data: WalletType = {
+      name,
+      image,
+      uid: user?.uid,
+    };
+
     setLoading(true);
-    const res = await updateUser(user?.uid as string, userData);
+    const res = await createUpdateWallet(data);
     setLoading(false);
 
     if (res.success) {
-      await updateUserData(user?.uid as string);
       router.back();
     } else {
-      Alert.alert("User", res.msg || "Something went wrong");
+      Alert.alert("Wallet", res.msg || "Something went wrong");
     }
   };
   return (
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Update Profile"
+          title="New Wallet"
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
 
         {/* form */}
         <ScrollView contentContainerStyle={styles.form}>
-          <View style={styles.avatarContainer}>
-            <Image
-              style={styles.avatar}
-              source={getProfileImage(userData?.image)}
-              contentFit="cover"
-              transition={100}
-            />
-            <TouchableOpacity style={styles.editIcon} onPress={onPickImage}>
-              <Icons.Pencil
-                size={verticalScale(20)}
-                color={colors.neutral800}
-                weight="bold"
-              />
-            </TouchableOpacity>
-          </View>
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200}>Name</Typo>
+            <Typo color={colors.neutral200}>Wallet Name</Typo>
             <Input
-              placeholder="Name"
-              value={userData?.name}
+              placeholder="Salary"
+              value={wallet?.name}
               onChangeText={(value) => {
-                setUserData({ ...userData, name: value });
+                setWallet({ ...wallet, name: value });
               }}
             />
+          </View>
+          <View style={styles.inputContainer}>
+            <Typo color={colors.neutral200}>Wallet Icon</Typo>
+            {/* image picker */}
+            <ImageUpload
+              file={wallet?.image}
+              onClear={() => setWallet({ ...wallet, image: null })}
+              onSelect={(file) => setWallet({ ...wallet, image: file })}
+              placeholder="Upload Image"
+            ></ImageUpload>
           </View>
         </ScrollView>
       </View>
@@ -113,7 +90,7 @@ const ProfileModal = () => {
       <View style={styles.footer}>
         <Button loading={loading} onPress={onSubmit} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            Update
+            { wallet.id ? "Update" : "Add wallet" }
           </Typo>
         </Button>
       </View>
@@ -121,7 +98,7 @@ const ProfileModal = () => {
   );
 };
 
-export default ProfileModal;
+export default WalletModal;
 
 const styles = StyleSheet.create({
   container: {
