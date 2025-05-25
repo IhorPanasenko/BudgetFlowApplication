@@ -2,9 +2,9 @@ import { auth, firestore } from "@/config/firebase";
 import { AuthContextType, UserType } from "@/types";
 import { useRouter } from "expo-router";
 import {
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -90,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const docRef = doc(firestore, "users", uid);
       const docSnapshot = await getDoc(docRef);
 
-      if (docSnapshot) {
+      if (docSnapshot.exists()) {
         const data = docSnapshot.data();
         const userData: UserType = {
           uid: data?.uid,
