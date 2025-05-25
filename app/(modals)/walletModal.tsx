@@ -7,11 +7,12 @@ import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
-import { createUpdateWallet } from "@/services/walletService";
+import { createUpdateWallet, deleteWallet } from "@/services/walletService";
 import { WalletType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import * as Icons from "phosphor-react-native";
+import React, { useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
 const WalletModal = () => {
@@ -24,6 +25,19 @@ const WalletModal = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
+  const oldWallet: { name: string; image: string; id: string } =
+    useLocalSearchParams();
+
+  useEffect(() => {
+    if (oldWallet.id) {
+      setWallet({
+        name: oldWallet.name,
+        image: oldWallet.image,
+        id: oldWallet.id,
+      });
+    }
+  }, []);
 
   const onSubmit = async () => {
     let { name, image } = wallet;
@@ -38,6 +52,7 @@ const WalletModal = () => {
     }
 
     const data: WalletType = {
+      id: wallet.id ?? undefined,
       name,
       image,
       uid: user?.uid,
@@ -53,11 +68,42 @@ const WalletModal = () => {
       Alert.alert("Wallet", res.msg || "Something went wrong");
     }
   };
+
+  const onDelete = async () => {
+    if (!wallet.id) return;
+    setLoading(true);
+    const res = await deleteWallet(wallet.id);
+    setLoading(false);
+    if (res.success) {
+      router.back();
+    } else {
+      Alert.alert("Wallet", res.msg);
+    }
+  };
+
+  const deleteAlert = () => {
+    Alert.alert(
+      "Confirm",
+      "Are you sure you want to do this?\nThis action will remove all the transactions related to the wallet",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Delete"),
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => onDelete(),
+          style: "destructive",
+        },
+      ]
+    );
+  };
   return (
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="New Wallet"
+          title={wallet.id ? "Update Wallet" : "New Wallet"}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -88,9 +134,24 @@ const WalletModal = () => {
       </View>
 
       <View style={styles.footer}>
+        {wallet.id && !loading && (
+          <Button
+            onPress={deleteAlert}
+            style={{
+              backgroundColor: colors.rose,
+              paddingHorizontal: spacingX._15,
+            }}
+          >
+            <Icons.Trash
+              color={colors.white}
+              size={verticalScale(24)}
+              weight="bold"
+            />
+          </Button>
+        )}
         <Button loading={loading} onPress={onSubmit} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            { wallet.id ? "Update" : "Add wallet" }
+            {wallet.id ? "Update Wallet" : "Add Wallet"}
           </Typo>
         </Button>
       </View>
