@@ -24,7 +24,7 @@ export default function CustomTabs({
         color={isFocused ? colors.primary : colors.neutral400}
       />
     ),
-    walet: (isFocused: boolean) => (
+    wallet: (isFocused: boolean) => (
       <Icons.Wallet
         size={verticalScale(30)}
         weight={isFocused ? "fill" : "regular"}
@@ -74,7 +74,6 @@ export default function CustomTabs({
 
         return (
           <TouchableOpacity
-            // href={buildHref(route.name, route.params)}
             key={route.name}
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -106,8 +105,6 @@ const styles = StyleSheet.create({
     marginBottom: Platform.OS == "ios" ? spacingY._10 : spacingY._5,
     justifyContent: "center",
     alignItems: "center",
-    // flex: 1,
-    // paddingVertical: 10,
   },
   tabLabel: {
     fontSize: 14,
