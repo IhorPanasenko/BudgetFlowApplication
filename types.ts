@@ -87,7 +87,7 @@ export type CategoryType = {
   bgColor: string
 }
 
-export type ExpenceCategoriesType = {
+export type ExpenseCategoriesType = {
   [key: string]: CategoryType
 }
 
@@ -95,7 +95,7 @@ export type TransactionListType = {
   data: TransactionType[]
   title?: string
   loading: boolean
-  isemptylistmessage?: string
+  emptyListMessage?: string
 }
 
 export type TransactionItemProps = {
