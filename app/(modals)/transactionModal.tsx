@@ -16,7 +16,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Platform,
@@ -56,7 +56,19 @@ const TransactionModal = () => {
     orderBy("created", "desc"),
   ]);
 
-  const oldTransaction: { name: string; image: string; id: string } =
+  type paramType = {
+    id: string,
+    type: string,
+    amount: string,
+    category?: string,
+    date: string,
+    description?: string,
+    image?: any,
+    uid: string,
+    walletId: string,
+  };
+
+  const oldTransaction: paramType =
     useLocalSearchParams();
 
   const onDateChange = (event: any, selectedDate: any) => {
@@ -68,15 +80,20 @@ const TransactionModal = () => {
     setShowDatePicker(Platform.OS == "ios" ? true : false);
   };
 
-  //   useEffect(() => {
-  //     if (oldTransaction.id) {
-  //       seTransaction({
-  //         name: oldTransaction.name,
-  //         image: oldTransaction.image,
-  //         id: oldTransaction.id,
-  //       });
-  //     }
-  //   }, []);
+    useEffect(() => {
+      if (oldTransaction.id) {
+        setTransaction({
+          id: oldTransaction.id,
+          type: oldTransaction.type,
+          amount: Number(oldTransaction.amount),
+          description: oldTransaction.description || "",
+          category: oldTransaction.category || "",
+          date: new Date(oldTransaction.date),
+          walletId: oldTransaction.walletId,
+          image: oldTransaction.image,
+        });
+      }
+    }, []);
 
   const onSubmit = async () => {
     const { type, amount, category, date, description, walletId, image } =
@@ -94,6 +111,7 @@ const TransactionModal = () => {
     }
 
     let transactionData: TransactionType = {
+      id: transaction.id || undefined,
       type,
       amount,
       description,
@@ -369,7 +387,7 @@ const TransactionModal = () => {
         )}
         <Button loading={loading} onPress={onSubmit} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            {transaction.id ? "Update Transaction" : "Add Transaction"}
+            {transaction.id ? "Update" : "Add Transaction"}
           </Typo>
         </Button>
       </View>

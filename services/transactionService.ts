@@ -2,6 +2,7 @@ import { firestore } from "@/config/firebase";
 import { ResponseType, TransactionType, WalletType } from "@/types";
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { uploadFileToCloudinary } from "./imageService";
+import { createUpdateWallet } from "./walletService";
 
 export const createUpdateTransaction = async (
   transactionData: Partial<TransactionType>
@@ -13,6 +14,27 @@ export const createUpdateTransaction = async (
     }
 
     if (id) {
+      const oldTransactionSnapshot = await getDoc(
+        doc(firestore, "transactions", id)
+      );
+      const oldTransaction = oldTransactionSnapshot.data() as TransactionType;
+      const shouldRevertOriginal =
+        oldTransaction.type !== type ||
+        oldTransaction.amount !== amount ||
+        oldTransaction.walletId !== walletId;
+
+      if (shouldRevertOriginal) {
+        let res = await revertAndUpdateWallets(
+          oldTransaction,
+          Number(amount),
+          type,
+          walletId
+        );
+
+        if (!res.success) {
+          return res;
+        }
+      }
     } else {
       let response = await updateWalletForNewTransaction(
         walletId,
@@ -91,6 +113,89 @@ const updateWalletForNewTransaction = async (
     await updateDoc(walletRef, {
       amount: updatedWalletAmount,
       [updateType]: updatedTotals,
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating a wallet for new transaction: ", error);
+    return { success: false, msg: error.message };
+  }
+};
+
+const revertAndUpdateWallets = async (
+  oldTransaction: TransactionType,
+  newTransactionAmount: number,
+  newTransactionType: string,
+  newTransactionWalletId: string
+) => {
+  try {
+    const originalWalletSnapshot = await getDoc(
+      doc(firestore, "wallets", oldTransaction.walletId)
+    );
+    const originalWallet = originalWalletSnapshot.data() as WalletType;
+
+    let newWalletSnapshot = await getDoc(
+      doc(firestore, "wallets", newTransactionWalletId)
+    );
+    let newWallet = newWalletSnapshot.data() as WalletType;
+
+    const revertType =
+      oldTransaction.type == "income" ? "totalIncome" : "totalExpenses";
+
+    const revertIncomeExpense: number =
+      oldTransaction.type == "income"
+        ? -Number(oldTransaction.amount)
+        : Number(oldTransaction.amount);
+
+    const revertedWalletAmount =
+      Number(originalWallet.amount) + revertIncomeExpense;
+    const revertedIncomeExpenseAmount =
+      Number(originalWallet[revertType]) - Number(oldTransaction.amount);
+
+    if (newTransactionType == "expense") {
+      if (
+        oldTransaction.walletId == newTransactionWalletId &&
+        revertedWalletAmount < newTransactionAmount
+      ) {
+        return {
+          success: false,
+          msg: "Not enough balance to perform this operation",
+        };
+      }
+
+      if (newWallet.amount! < newTransactionAmount) {
+        return {
+          success: false,
+          msg: "Not enough balance to perform this operation",
+        };
+      }
+    }
+
+    await createUpdateWallet({
+      id: oldTransaction.walletId,
+      amount: revertedWalletAmount,
+      [revertType]: revertedIncomeExpenseAmount,
+    });
+
+    newWalletSnapshot = await getDoc(
+      doc(firestore, "wallets", newTransactionWalletId)
+    );
+
+    newWallet = newWalletSnapshot.data() as WalletType;
+
+    const updateType =
+      newTransactionType === "income" ? "totalIncome" : "totalExpenses";
+    const newWalletAmount =
+      newTransactionType === "income"
+        ? Number(newWallet.amount) + newTransactionAmount
+        : Number(newWallet.amount) - newTransactionAmount;
+    const newIncomeExpenseAmount =
+      Number(newWallet[updateType]) + newTransactionAmount;
+
+    await createUpdateWallet({
+      id: newTransactionWalletId,
+      amount: newWalletAmount,
+      [updateType]: newIncomeExpenseAmount,
     });
 
     return { success: true };

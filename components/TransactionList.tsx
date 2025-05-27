@@ -1,8 +1,9 @@
 import { expenseCategories, incomeCategory } from "@/contansts/data";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
-import { TransactionItemProps, TransactionListType } from "@/types";
+import { TransactionItemProps, TransactionListType, TransactionType } from "@/types";
 import { verticalScale } from "@/utilts/styling";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import { Timestamp } from "firebase/firestore";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -16,8 +17,19 @@ const TransactionList = ({
   loading,
   emptyListMessage,
 }: TransactionListType) => {
-  const handleClick = () => {
+
+  const router = useRouter();
+  const handleClick = (item: TransactionType) => {
     console.log("Transaction Item Clicked");
+    router.push({pathname: "/(modals)/transactionModal", params: {id: item?.id,
+      type: item?.type,
+      amount: item?.amount.toString(),
+      category: item?.category,
+      date: (item?.date as Timestamp)?.toDate().toISOString(),
+      description: item?.description,
+      uid: item?.uid,
+      walletId: item?.walletId
+    }})
   };
   return (
     <View style={styles.container}>
