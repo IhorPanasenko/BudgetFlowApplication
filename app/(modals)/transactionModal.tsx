@@ -9,6 +9,7 @@ import { expenseCategories, transactionTypes } from "@/contansts/data";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
 import useFetchData from "@/hooks/useFetchData";
+import { createUpdateTransaction } from "@/services/transactionService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -17,13 +18,13 @@ import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React, { useState } from "react";
 import {
-    Alert,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 
@@ -102,6 +103,16 @@ const TransactionModal = () => {
       image,
       uid: user?.uid,
     };
+
+    setLoading(true);
+    const response = await createUpdateTransaction(transactionData);
+    setLoading(false);
+
+    if (response.success) {
+      router.back();
+    } else {
+      Alert.alert("Transaction", response.msg);
+    }
   };
 
   const onDelete = async () => {
