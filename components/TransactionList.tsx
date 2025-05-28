@@ -20,7 +20,6 @@ const TransactionList = ({
 
   const router = useRouter();
   const handleClick = (item: TransactionType) => {
-    console.log("Transaction Item Clicked");
     router.push({pathname: "/(modals)/transactionModal", params: {id: item?.id,
       type: item?.type,
       amount: item?.amount.toString(),
@@ -28,7 +27,8 @@ const TransactionList = ({
       date: (item?.date as Timestamp)?.toDate().toISOString(),
       description: item?.description,
       uid: item?.uid,
-      walletId: item?.walletId
+      walletId: item?.walletId,
+      image: item?.image,
     }})
   };
   return (

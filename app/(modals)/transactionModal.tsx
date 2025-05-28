@@ -118,7 +118,7 @@ const TransactionModal = () => {
       category,
       date,
       walletId,
-      image,
+      image: image ? image : null,
       uid: user?.uid,
     };
 
