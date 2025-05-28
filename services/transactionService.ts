@@ -1,6 +1,6 @@
 import { firestore } from "@/config/firebase";
 import { ResponseType, TransactionType, WalletType } from "@/types";
-import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { uploadFileToCloudinary } from "./imageService";
 import { createUpdateWallet } from "./walletService";
 
@@ -197,6 +197,52 @@ const revertAndUpdateWallets = async (
       amount: newWalletAmount,
       [updateType]: newIncomeExpenseAmount,
     });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating a wallet for new transaction: ", error);
+    return { success: false, msg: error.message };
+  }
+};
+
+export const deleteTransaction = async (
+  transactionId: string,
+  walletId: string
+) => {
+  try {
+
+    const transactionRef = doc(firestore, "transactions", transactionId)
+    const transactionSnapshot = await getDoc(transactionRef);
+
+    const transactionData = transactionSnapshot.data() as TransactionType;
+    if (!transactionData) {
+      return { success: false, msg: "The transaction was not found" };
+    }
+
+    const transactionType = transactionData.type;
+    const transactionAmount = transactionData.amount;
+
+    const walletSnapshot = await getDoc(doc(firestore, "wallets", walletId));
+    const walletData = walletSnapshot.data() as WalletType;
+
+    const updateType =
+      transactionType == "income" ? "totalIncome" : "totalExpenses";
+    const newWalletAmount =
+      walletData?.amount! -
+      (transactionType == "income" ? transactionAmount : -transactionAmount);
+    const newIncomeExpenseAmount = walletData[updateType]! - transactionAmount;
+
+    if (transactionType == "income" && newWalletAmount < 0) {
+      return { success: false, msg: "You cannot delete this transaction" };
+    }
+
+    await createUpdateWallet({
+      id: walletId,
+      amount: newWalletAmount,
+      [updateType]: newIncomeExpenseAmount,
+    });
+
+    await deleteDoc(transactionRef);
 
     return { success: true };
   } catch (error: any) {

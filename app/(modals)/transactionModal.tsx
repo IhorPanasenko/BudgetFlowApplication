@@ -9,7 +9,7 @@ import { expenseCategories, transactionTypes } from "@/contansts/data";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
 import useFetchData from "@/hooks/useFetchData";
-import { createUpdateTransaction } from "@/services/transactionService";
+import { createUpdateTransaction, deleteTransaction } from "@/services/transactionService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -136,7 +136,7 @@ const TransactionModal = () => {
   const onDelete = async () => {
     if (!transaction.id) return;
     setLoading(true);
-    const res = await deleteTransaction(transaction.id);
+    const res = await deleteTransaction(transaction.id, transaction.walletId);
     setLoading(false);
     if (res.success) {
       router.back();
@@ -146,7 +146,7 @@ const TransactionModal = () => {
   };
 
   const deleteAlert = () => {
-    Alert.alert("Confirm", "Are you sure you want to do this?", [
+    Alert.alert("Confirm", "Are you sure you want to delete this transaction?", [
       {
         text: "Cancel",
         onPress: () => console.log("Cancel Delete"),
