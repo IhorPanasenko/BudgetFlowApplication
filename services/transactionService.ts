@@ -1,6 +1,21 @@
 import { firestore } from "@/config/firebase";
+import { colors } from "@/contansts/theme";
 import { ResponseType, TransactionType, WalletType } from "@/types";
-import { collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { getLastSevenDays } from "@/utilts/common";
+import { scale } from "@/utilts/styling";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { uploadFileToCloudinary } from "./imageService";
 import { createUpdateWallet } from "./walletService";
 
@@ -210,8 +225,7 @@ export const deleteTransaction = async (
   walletId: string
 ) => {
   try {
-
-    const transactionRef = doc(firestore, "transactions", transactionId)
+    const transactionRef = doc(firestore, "transactions", transactionId);
     const transactionSnapshot = await getDoc(transactionRef);
 
     const transactionData = transactionSnapshot.data() as TransactionType;
@@ -245,6 +259,72 @@ export const deleteTransaction = async (
     await deleteDoc(transactionRef);
 
     return { success: true };
+  } catch (error: any) {
+    console.error("Error updating a wallet for new transaction: ", error);
+    return { success: false, msg: error.message };
+  }
+};
+
+export const fetchWeeklyStats = async (uid: string): Promise<ResponseType> => {
+  try {
+    const db = firestore;
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    const transactionsQuery = query(
+      collection(db, "transactions"),
+      where("date", ">=", Timestamp.fromDate(sevenDaysAgo)),
+      where("date", "<=", Timestamp.fromDate(today)),
+      orderBy("date", "desc"),
+      where("uid", "==", uid)
+    );
+
+    const querySnapshot = await getDocs(transactionsQuery);
+    const weeklyData = getLastSevenDays();
+    const transactions: TransactionType[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const transaction = doc.data() as TransactionType;
+      transaction.id = doc.id;
+      transactions.push(transaction);
+      const transactionDate = (transaction.date as Timestamp)
+        .toDate()
+        .toISOString()
+        .split("T")[0];
+
+      const dayData = weeklyData.find((day) => day.date == transactionDate);
+
+      if (dayData) {
+        if (transaction.type == "income") {
+          dayData.income += transaction.amount;
+        } else if (transaction.type == "expense") {
+          dayData.expense += transaction.amount;
+        }
+      }
+    });
+
+    const stats = weeklyData.flatMap((day) => [
+      {
+        value: day.income,
+        label: day.day,
+        spacing: scale(4),
+        labeWidth: scale(30),
+        frontColor: colors.primary,
+      },
+      {
+        value: day.expense,
+        frontColor: colors.rose,
+      },
+    ]);
+
+    return {
+      success: true,
+      data: {
+        stats,
+        transactions,
+      },
+    };
   } catch (error: any) {
     console.error("Error updating a wallet for new transaction: ", error);
     return { success: false, msg: error.message };
