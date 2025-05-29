@@ -31,7 +31,6 @@ const Register = () => {
       passwordRef.current,
       nameRef.current,
     );
-    console.log("registrationresult: ", res);
 
     setIsLoading(false);
     if (!res.success) {
