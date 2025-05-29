@@ -44,7 +44,7 @@ const Home = () => {
           </View>
           <TouchableOpacity
             style={styles.searchIcon}
-            onPress={() => console.log("Search Icon Pressed")}
+            onPress={() => router.push('/(modals)/searchModal')}
           >
             <Icons.MagnifyingGlass
               size={verticalScale(22)}

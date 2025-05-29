@@ -1,49 +1,82 @@
 import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import ScreenWrapper from "@/components/ScreenWrapper";
+import TransactionList from "@/components/TransactionList";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
+import {
+  fetchMonthlyStats,
+  fetchWeeklyStats,
+  fetchYearlyStats,
+} from "@/services/transactionService";
 import { scale, verticalScale } from "@/utilts/styling";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 
 const Statistics = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [chartData, setChartData] = useState([]);
   const [chartLoading, setChartLoading] = useState(false);
-  const user = useAuth();
+  const [transactions, setTransactions] = useState([]);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     switch (activeIndex) {
       case 0:
         getWeeklyStats();
         break;
-        case 1:
-          getMonthlyStats();
-          break;
-          case 2:
-            getYearlyStats();
-            break;
+      case 1:
+        getMonthlyStats();
+        break;
+      case 2:
+        getYearlyStats();
+        break;
     }
-    if(activeIndex == 0) {
+    if (activeIndex == 0) {
       getWeeklyStats();
     }
-
-  }, [activeIndex])
+  }, [activeIndex]);
 
   const getWeeklyStats = async () => {
+    setChartLoading(true);
+    let res = await fetchWeeklyStats(user?.uid as string);
+    setChartLoading(false);
+    if (res && res?.success) {
+      setChartData(res.data?.stats);
+      setTransactions(res.data?.transactions);
+    } else {
+      Alert.alert("Error", res.msg);
+    }
+  };
 
-  }
+  const getMonthlyStats = async () => {
+    setChartLoading(true);
+    let res = await fetchMonthlyStats(user?.uid as string);
+    console.log(res.data?.stats);
+    setChartLoading(false);
+    if (res && res?.success) {
+      setChartData(res.data?.stats);
+      setTransactions(res.data?.transactions);
+    } else {
+      Alert.alert("Error", res.msg);
+    }
+  };
 
-    const getMonthlyStats = async () => {
-    
-  }
-
-    const getYearlyStats = async () => {
-    
-  }
+  const getYearlyStats = async () => {
+    setChartLoading(true);
+    let res = await fetchYearlyStats(user?.uid as string);
+    console.log(res.data?.stats);
+    setChartLoading(false);
+    if (res && res?.success) {
+      setChartData(res.data?.stats);
+      setTransactions(res.data?.transactions);
+    } else {
+      Alert.alert("Error", res.msg);
+    }
+  };
 
   return (
     <ScreenWrapper>
@@ -78,7 +111,7 @@ const Statistics = () => {
             {chartData.length > 0 ? (
               <BarChart
                 data={chartData}
-                barWidth={scale(12)}
+                barWidth={scale(15)}
                 spacing={[1, 2].includes(activeIndex) ? scale(25) : scale(16)}
                 roundedTop
                 roundedBottom
@@ -92,7 +125,7 @@ const Statistics = () => {
                 yAxisTextStyle={{ color: colors.neutral350 }}
                 xAxisLabelTextStyle={{
                   color: colors.neutral350,
-                  fontSize: verticalScale(12),
+                  fontSize: verticalScale(7),
                 }}
                 noOfSections={3}
                 minHeight={5}
@@ -103,13 +136,20 @@ const Statistics = () => {
               <View style={styles.noChart}></View>
             )}
 
-            {
-              chartLoading && (
-                <View style={styles.chartLoadingContainer}>
-                  <Loading  color={colors.white}/>
-                </View>
-              )
-            }
+            {chartLoading && (
+              <View style={styles.chartLoadingContainer}>
+                <Loading color={colors.white} />
+              </View>
+            )}
+          </View>
+          {/* Transactions */}
+          <View>
+            <TransactionList
+              title="Transactions"
+              emptyListMessage="No transactions found"
+              data={transactions}
+              loading={false}
+            />
           </View>
         </ScrollView>
       </View>
