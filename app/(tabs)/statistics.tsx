@@ -55,7 +55,6 @@ const Statistics = () => {
   const getMonthlyStats = async () => {
     setChartLoading(true);
     let res = await fetchMonthlyStats(user?.uid as string);
-    console.log(res.data?.stats);
     setChartLoading(false);
     if (res && res?.success) {
       setChartData(res.data?.stats);
@@ -68,7 +67,6 @@ const Statistics = () => {
   const getYearlyStats = async () => {
     setChartLoading(true);
     let res = await fetchYearlyStats(user?.uid as string);
-    console.log(res.data?.stats);
     setChartLoading(false);
     if (res && res?.success) {
       setChartData(res.data?.stats);

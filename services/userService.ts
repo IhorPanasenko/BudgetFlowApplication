@@ -26,7 +26,6 @@ export const updateUser = async (
 
     const userRef = doc(firestore, "users", uid);
     await updateDoc(userRef, updatedData);
-    console.log("User updated successfully:", uid);
     return { success: true, msg: "User updated successfully" };
   } catch (error: any) {
     console.error("Error updating user:", error);
