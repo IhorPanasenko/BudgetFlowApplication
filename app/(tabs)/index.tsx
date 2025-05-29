@@ -21,10 +21,10 @@ const Home = () => {
   const contraints = [
     where("uid", "==", user?.uid),
     orderBy("date", "desc"),
-    limit(30)
-  ]
+    limit(30),
+  ];
 
-    const {
+  const {
     data: recentTransactions,
     loading: transactionsLoading,
     error,
@@ -44,7 +44,7 @@ const Home = () => {
           </View>
           <TouchableOpacity
             style={styles.searchIcon}
-            onPress={() => router.push('/(modals)/searchModal')}
+            onPress={() => router.push("/(modals)/searchModal")}
           >
             <Icons.MagnifyingGlass
               size={verticalScale(22)}
@@ -71,7 +71,10 @@ const Home = () => {
           />
         </ScrollView>
 
-        <Button style={styles.floatingButton} onPress={() => router.push("/(modals)/transactionModal")}>
+        <Button
+          style={styles.floatingButton}
+          onPress={() => router.push("/(modals)/transactionModal")}
+        >
           <Icons.Plus
             size={verticalScale(24)}
             color={colors.black}
