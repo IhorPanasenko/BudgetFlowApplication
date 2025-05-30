@@ -5,9 +5,10 @@ import ImageUpload from "@/components/ImageUpload";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
-import { expenseCategories, transactionTypes } from "@/contansts/data";
+import { transactionTypes } from "@/contansts/data";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
+import { useCategories } from "@/hooks/useCategories";
 import useFetchData from "@/hooks/useFetchData";
 import { createUpdateTransaction, deleteTransaction } from "@/services/transactionService";
 import { TransactionType, WalletType } from "@/types";
@@ -32,11 +33,17 @@ const TransactionModal = () => {
   const { user } = useAuth();
   const router = useRouter();
 
+  const { categories, loading: categoriesLoading } = useCategories(user?.uid);
+
+  const filteredCategories = categories.filter(
+      (cat) => cat.type.toLowerCase() === transaction.type.toLowerCase()
+    );
+
   const [transaction, setTransaction] = useState<TransactionType>({
     type: "expense",
     amount: 0,
     description: "",
-    category: "",
+    categoryId: "",
     date: new Date(),
     walletId: "",
     image: null,
@@ -60,7 +67,7 @@ const TransactionModal = () => {
     id: string,
     type: string,
     amount: string,
-    category?: string,
+    categoryId: string,
     date: string,
     description?: string,
     image?: any,
@@ -87,7 +94,7 @@ const TransactionModal = () => {
           type: oldTransaction.type,
           amount: Number(oldTransaction.amount),
           description: oldTransaction.description || "",
-          category: oldTransaction.category || "",
+          categoryId: oldTransaction.categoryId,
           date: new Date(oldTransaction.date),
           walletId: oldTransaction.walletId,
           image: oldTransaction.image,
@@ -96,7 +103,7 @@ const TransactionModal = () => {
     }, []);
 
   const onSubmit = async () => {
-    const { type, amount, category, date, description, walletId, image } =
+    const { type, amount, categoryId, date, description, walletId, image } =
       transaction;
 
     if (
@@ -104,7 +111,7 @@ const TransactionModal = () => {
       !date ||
       !amount ||
       !type ||
-      (type === "expense" && !category)
+      !categoryId
     ) {
       Alert.alert("Transaction", "Please fill all the required fields");
       return;
@@ -115,7 +122,7 @@ const TransactionModal = () => {
       type,
       amount,
       description,
-      category,
+      categoryId,
       date,
       walletId,
       image: image ? image : null,
@@ -240,7 +247,11 @@ const TransactionModal = () => {
                 placeholderStyle={styles.dropdownPlaceholder}
                 selectedTextStyle={styles.dropdownSelectedText}
                 iconStyle={styles.dropdownIcon}
-                data={Object.values(expenseCategories)}
+                data={filteredCategories.map((cat) => ({
+                  label: cat.label,
+                  value: cat.id,
+                  icon: cat.icon,
+                }))}
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
@@ -248,11 +259,11 @@ const TransactionModal = () => {
                 itemContainerStyle={styles.dropdownItemContainer}
                 containerStyle={styles.dropdownListContainer}
                 placeholder={"Select category"}
-                value={transaction.category}
+                value={transaction.categoryId}
                 onChange={(item) => {
                   setTransaction({
                     ...transaction,
-                    category: item.value || "",
+                    categoryId: item.value || "",
                   });
                 }}
               />

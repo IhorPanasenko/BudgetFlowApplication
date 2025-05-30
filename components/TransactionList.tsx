@@ -91,12 +91,7 @@ const TransactionItem = ({
   handleClick,
   categories
 }: TransactionItemProps) => {
-  console.log('item: ', item);
-  console.log('')
   const category = categories.find(cat => cat.id === item.categoryId);
-   
-  console.log('category: ', category);
-
   const IconComponent = category ? Icons[category.icon as keyof typeof Icons] : Icons.Question;
   const bgColor = category?.bgColor || colors.neutral800;
   const label = category?.label || "Unknown";
