@@ -6,6 +6,7 @@ import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
+import { useCategories } from "@/hooks/useCategories";
 import useFetchData from "@/hooks/useFetchData";
 import { TransactionType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
@@ -28,11 +29,19 @@ const SearchModal = () => {
     error,
   } = useFetchData<TransactionType>("transactions", contraints);
 
-  const filteredTransactions = allTransactions.filter((item) => {
+  const { categories, loading: categoriesLoading } = useCategories(user?.uid);
+
+  const transactionsWithCategory = allTransactions.map((item) => {
+    const category = categories.find((cat) => cat.id === item.categoryId);
+    return { ...item, category };
+  });
+
+
+  const filteredTransactions = transactionsWithCategory.filter((item) => {
     if (search.trim().length > 1) {
       return (
-        item.category?.toLowerCase()?.includes(search.toLowerCase()) ||
-        item.type?.toLowerCase()?.includes(search.toLowerCase()) ||
+        item.category?.value.toLowerCase()?.includes(search.toLowerCase()) ||
+        item.category?.type.toLowerCase()?.includes(search.toLowerCase()) ||
         item.description?.toLowerCase()?.includes(search.toLowerCase())
       );
     }
