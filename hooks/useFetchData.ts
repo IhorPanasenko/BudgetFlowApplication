@@ -1,9 +1,9 @@
 import { firestore } from "@/config/firebase";
 import {
-    collection,
-    onSnapshot,
-    query,
-    QueryConstraint,
+  collection,
+  onSnapshot,
+  query,
+  QueryConstraint,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -31,6 +31,7 @@ const useFetchData = <T>(
             ...doc.data(),
           };
         }) as T[];
+        console.log(`fetchData: ${collectionName}`, fetchData);
         setData(fetchData);
         setLoading(false);
       },

@@ -1,10 +1,16 @@
-import { expenseCategories, incomeCategory } from "@/contansts/data";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
-import { TransactionItemProps, TransactionListType, TransactionType } from "@/types";
+import { useAuth } from "@/context/authContext";
+import { useCategories } from "@/hooks/useCategories";
+import {
+  TransactionItemProps,
+  TransactionListType,
+  TransactionType,
+} from "@/types";
 import { verticalScale } from "@/utilts/styling";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Timestamp } from "firebase/firestore";
+import * as Icons from 'phosphor-react-native';
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -17,19 +23,26 @@ const TransactionList = ({
   loading,
   emptyListMessage,
 }: TransactionListType) => {
-
+  const { user } = useAuth();
   const router = useRouter();
+
+  const { categories, loading: categoriesLoading } = useCategories(user?.uid);
+
   const handleClick = (item: TransactionType) => {
-    router.push({pathname: "/(modals)/transactionModal", params: {id: item?.id,
-      type: item?.type,
-      amount: item?.amount.toString(),
-      category: item?.category,
-      date: (item?.date as Timestamp)?.toDate().toISOString(),
-      description: item?.description,
-      uid: item?.uid,
-      walletId: item?.walletId,
-      image: item?.image,
-    }})
+    router.push({
+      pathname: "/(modals)/transactionModal",
+      params: {
+        id: item?.id,
+        type: item?.type,
+        amount: item?.amount.toString(),
+        categoryId: item?.categoryId,
+        date: (item?.date as Timestamp)?.toDate().toISOString(),
+        description: item?.description,
+        uid: item?.uid,
+        walletId: item?.walletId,
+        image: item?.image,
+      },
+    });
   };
   return (
     <View style={styles.container}>
@@ -47,6 +60,7 @@ const TransactionList = ({
               item={item}
               index={index}
               handleClick={handleClick}
+              categories={categories}
             />
           )}
           estimatedItemSize={200}
@@ -75,21 +89,36 @@ const TransactionItem = ({
   item,
   index,
   handleClick,
+  categories
 }: TransactionItemProps) => {
-  let category = item?.type === "income" ? incomeCategory : expenseCategories[item.category!];
-  const IconCopmonent = category.icon;
+  console.log('item: ', item);
+  console.log('')
+  const category = categories.find(cat => cat.id === item.categoryId);
+   
+  console.log('category: ', category);
 
-  const date = (item?.date as Timestamp)?.toDate()?.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "2-digit"
-  })
+  const IconComponent = category ? Icons[category.icon as keyof typeof Icons] : Icons.Question;
+  const bgColor = category?.bgColor || colors.neutral800;
+  const label = category?.label || "Unknown";
+  const type = category?.type || "Expense";
+
+  const date = (item?.date as Timestamp)
+    ?.toDate()
+    ?.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "2-digit",
+    });
   return (
-    <Animated.View entering={FadeInDown.delay(index * 100).springify().damping(14)}>
+    <Animated.View
+      entering={FadeInDown.delay(index * 100)
+        .springify()
+        .damping(14)}
+    >
       <TouchableOpacity style={styles.row} onPress={() => handleClick(item)}>
-        <View style={[styles.icon, { backgroundColor: category.bgColor }]}>
-          {IconCopmonent && (
-            <IconCopmonent
+        <View style={[styles.icon, { backgroundColor: bgColor }]}>
+          {IconComponent && typeof IconComponent === "function" && (
+            <IconComponent
               size={verticalScale(25)}
               weight="fill"
               color={colors.white}
@@ -98,7 +127,7 @@ const TransactionItem = ({
         </View>
         <View style={styles.categoryDes}>
           <Typo size={17} fontWeight={"500"}>
-            {category.label}
+            {label}
           </Typo>
           <Typo
             size={12}
@@ -110,10 +139,12 @@ const TransactionItem = ({
         </View>
 
         <View style={styles.amountDate}>
-          <Typo size={17} fontWeight={"500"} color={item.type === "income" ? colors.primary : colors.rose}>
-            {
-              `${item.type === "income" ? "+ $" : "- $"}${item.amount}`
-            }
+          <Typo
+            size={17}
+            fontWeight={"500"}
+            color={type === "income" ? colors.primary : colors.rose}
+          >
+            {`${type === "income" ? "+ $" : "- $"}${item.amount}`}
           </Typo>
           <Typo size={14} color={colors.neutral400}>
             {date}
