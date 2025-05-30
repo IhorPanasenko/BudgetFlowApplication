@@ -18,7 +18,7 @@ const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
 
-  const contraints = [
+  const transactionContraints = [
     where("uid", "==", user?.uid),
     orderBy("date", "desc"),
     limit(30),
@@ -28,7 +28,7 @@ const Home = () => {
     data: recentTransactions,
     loading: transactionsLoading,
     error,
-  } = useFetchData<TransactionType>("transactions", contraints);
+  } = useFetchData<TransactionType>("transactions", transactionContraints);
 
   return (
     <ScreenWrapper>

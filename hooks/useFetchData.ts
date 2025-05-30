@@ -31,7 +31,6 @@ const useFetchData = <T>(
             ...doc.data(),
           };
         }) as T[];
-        console.log(`fetchData: ${collectionName}`, fetchData);
         setData(fetchData);
         setLoading(false);
       },

@@ -10,7 +10,10 @@ import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
 import { useCategories } from "@/hooks/useCategories";
 import useFetchData from "@/hooks/useFetchData";
-import { createUpdateTransaction, deleteTransaction } from "@/services/transactionService";
+import {
+  createUpdateTransaction,
+  deleteTransaction,
+} from "@/services/transactionService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -35,10 +38,6 @@ const TransactionModal = () => {
 
   const { categories, loading: categoriesLoading } = useCategories(user?.uid);
 
-  const filteredCategories = categories.filter(
-      (cat) => cat.type.toLowerCase() === transaction.type.toLowerCase()
-    );
-
   const [transaction, setTransaction] = useState<TransactionType>({
     type: "expense",
     amount: 0,
@@ -48,6 +47,10 @@ const TransactionModal = () => {
     walletId: "",
     image: null,
   });
+
+  const filteredCategories = categories.filter(
+    (cat) => cat.type.toLowerCase() === transaction.type.toLowerCase()
+  );
 
   const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -64,19 +67,18 @@ const TransactionModal = () => {
   ]);
 
   type paramType = {
-    id: string,
-    type: string,
-    amount: string,
-    categoryId: string,
-    date: string,
-    description?: string,
-    image?: any,
-    uid: string,
-    walletId: string,
+    id: string;
+    type: string;
+    amount: string;
+    categoryId: string;
+    date: string;
+    description?: string;
+    image?: any;
+    uid: string;
+    walletId: string;
   };
 
-  const oldTransaction: paramType =
-    useLocalSearchParams();
+  const oldTransaction: paramType = useLocalSearchParams();
 
   const onDateChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate || transaction.date;
@@ -87,32 +89,26 @@ const TransactionModal = () => {
     setShowDatePicker(Platform.OS == "ios" ? true : false);
   };
 
-    useEffect(() => {
-      if (oldTransaction.id) {
-        setTransaction({
-          id: oldTransaction.id,
-          type: oldTransaction.type,
-          amount: Number(oldTransaction.amount),
-          description: oldTransaction.description || "",
-          categoryId: oldTransaction.categoryId,
-          date: new Date(oldTransaction.date),
-          walletId: oldTransaction.walletId,
-          image: oldTransaction.image,
-        });
-      }
-    }, []);
+  useEffect(() => {
+    if (oldTransaction.id) {
+      setTransaction({
+        id: oldTransaction.id,
+        type: oldTransaction.type,
+        amount: Number(oldTransaction.amount),
+        description: oldTransaction.description || "",
+        categoryId: oldTransaction.categoryId,
+        date: new Date(oldTransaction.date),
+        walletId: oldTransaction.walletId,
+        image: oldTransaction.image,
+      });
+    }
+  }, []);
 
   const onSubmit = async () => {
     const { type, amount, categoryId, date, description, walletId, image } =
       transaction;
 
-    if (
-      !walletId ||
-      !date ||
-      !amount ||
-      !type ||
-      !categoryId
-    ) {
+    if (!walletId || !date || !amount || !type || !categoryId) {
       Alert.alert("Transaction", "Please fill all the required fields");
       return;
     }
@@ -153,18 +149,22 @@ const TransactionModal = () => {
   };
 
   const deleteAlert = () => {
-    Alert.alert("Confirm", "Are you sure you want to delete this transaction?", [
-      {
-        text: "Cancel",
-        onPress: () => console.log("Cancel Delete"),
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        onPress: () => onDelete(),
-        style: "destructive",
-      },
-    ]);
+    Alert.alert(
+      "Confirm",
+      "Are you sure you want to delete this transaction?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Delete"),
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => onDelete(),
+          style: "destructive",
+        },
+      ]
+    );
   };
   return (
     <ModalWrapper>
@@ -235,40 +235,67 @@ const TransactionModal = () => {
             />
           </View>
 
-          {/* expense categories */}
-          {transaction.type === "expense" && (
-            <View style={styles.inputContainer}>
+          {/* categories */}
+          <View style={styles.inputContainer}>
+            <View style={styles.flexRowPlus}>
               <Typo color={colors.neutral200} size={16}>
-                Expense Category
+                Category
               </Typo>
-              <Dropdown
-                style={styles.dropdownContainer}
-                activeColor={colors.neutral700}
-                placeholderStyle={styles.dropdownPlaceholder}
-                selectedTextStyle={styles.dropdownSelectedText}
-                iconStyle={styles.dropdownIcon}
-                data={filteredCategories.map((cat) => ({
-                  label: cat.label,
-                  value: cat.id,
-                  icon: cat.icon,
-                }))}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                itemTextStyle={styles.dropdownItemText}
-                itemContainerStyle={styles.dropdownItemContainer}
-                containerStyle={styles.dropdownListContainer}
-                placeholder={"Select category"}
-                value={transaction.categoryId}
-                onChange={(item) => {
-                  setTransaction({
-                    ...transaction,
-                    categoryId: item.value || "",
-                  });
-                }}
-              />
+              <TouchableOpacity
+                onPress={() => router.push("/(modals)/categoryModal")}
+              >
+                <Icons.PlusCircle
+                  size={verticalScale(33)}
+                  color={colors.primary}
+                  weight="fill"
+                />
+              </TouchableOpacity>
             </View>
-          )}
+            <Dropdown
+              style={styles.dropdownContainer}
+              activeColor={colors.neutral700}
+              placeholderStyle={styles.dropdownPlaceholder}
+              selectedTextStyle={styles.dropdownSelectedText}
+              iconStyle={styles.dropdownIcon}
+              data={filteredCategories.map((cat) => ({
+                label: cat.label,
+                value: cat.id,
+                icon: cat.icon,
+              }))}
+              maxHeight={300}
+              labelField="label"
+              valueField="value"
+              itemTextStyle={styles.dropdownItemText}
+              itemContainerStyle={styles.dropdownItemContainer}
+              containerStyle={styles.dropdownListContainer}
+              placeholder={"Select category"}
+              value={transaction.categoryId}
+              onChange={(item) => {
+                setTransaction({
+                  ...transaction,
+                  categoryId: item.value || "",
+                });
+              }}
+              renderLeftIcon={() => null}
+              renderItem={(item) => {
+                const IconComponent =
+                  item.icon && Icons[item.icon as keyof typeof Icons];
+                return (
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    {IconComponent ? (
+                      <IconComponent
+                        size={20}
+                        color={colors.neutral300}
+                        weight="fill"
+                        style={{ marginRight: 8 }}
+                      />
+                    ) : null}
+                    <Typo color={colors.white}>{item.label}</Typo>
+                  </View>
+                );
+              }}
+            />
+          </View>
 
           {/* Date picker */}
           <View style={styles.inputContainer}>
@@ -518,5 +545,11 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     height: verticalScale(30),
     tintColor: colors.neutral300,
+  },
+  flexRowPlus: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacingY._10,
   },
 });
