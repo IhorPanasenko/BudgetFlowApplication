@@ -7,7 +7,10 @@ import Typo from "@/components/Typo";
 import { firestore } from "@/config/firebase";
 import { colors, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
-import { createUpdateCategory, deleteCategory } from "@/services/categoryService";
+import {
+  createUpdateCategory,
+  deleteCategory,
+} from "@/services/categoryService";
 import { CategoryType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -95,22 +98,18 @@ const CategoryModal = () => {
   };
 
   const deleteAlert = () => {
-    Alert.alert(
-      "Confirm",
-      "Are you sure you want to delete this category?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Delete"),
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => onDelete(),
-          style: "destructive",
-        },
-      ]
-    );
+    Alert.alert("Confirm", "Are you sure you want to delete this category?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Delete"),
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        onPress: () => onDelete(),
+        style: "destructive",
+      },
+    ]);
   };
 
   const onSubmit = async () => {
@@ -206,6 +205,15 @@ const CategoryModal = () => {
                   </TouchableOpacity>
                 );
               })}
+              <TouchableOpacity
+                style={[
+                  styles.iconBtn,
+                  { borderColor: colors.primary, borderStyle: "dashed" },
+                ]}
+                onPress={() => router.push("/(modals)/iconPickerModal")}
+              >
+                <Icons.MagnifyingGlass size={24} color={colors.primary} />
+              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.inputContainer}>

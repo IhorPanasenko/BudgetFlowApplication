@@ -26,10 +26,6 @@ const CategoryListModal = () => {
     });
   };
 
-  const handleCreate = () => {
-    router.push("/(modals)/categoryModal");
-  };
-
   const renderItem = ({ item, index }: { item: CategoryType, index: number }) => {
     const IconComponent = item.icon
       ? Icons[item.icon as keyof typeof Icons]
@@ -37,7 +33,7 @@ const CategoryListModal = () => {
 
     return (
       <Animated.View
-        entering={FadeInDown.delay(index * 100)
+        entering={FadeInDown.delay(index * 150)
           .springify()
           .damping(14)}
       >

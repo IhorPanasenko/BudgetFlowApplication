@@ -245,7 +245,7 @@ const TransactionModal = () => {
               <TouchableOpacity
                 onPress={() => router.push("/(modals)/categoryListModal")}
               >
-                <Icons.PlusCircle
+                <Icons.NotePencil
                   size={verticalScale(33)}
                   color={colors.primary}
                   weight="fill"
