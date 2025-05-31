@@ -137,9 +137,9 @@ const TransactionItem = ({
           <Typo
             size={17}
             fontWeight={"500"}
-            color={type === "income" ? colors.primary : colors.rose}
+            color={type.toLowerCase() === "income" ? colors.primary : colors.rose}
           >
-            {`${type === "income" ? "+ $" : "- $"}${item.amount}`}
+            {`${type.toLowerCase() === "income" ? "+ $" : "- $"}${item.amount}`}
           </Typo>
           <Typo size={14} color={colors.neutral400}>
             {date}

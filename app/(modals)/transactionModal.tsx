@@ -114,7 +114,6 @@ const TransactionModal = () => {
     }
 
     let transactionData: TransactionType = {
-      id: transaction.id || undefined,
       type,
       amount,
       description,
@@ -124,6 +123,8 @@ const TransactionModal = () => {
       image: image ? image : null,
       uid: user?.uid,
     };
+
+    if(transaction.id) transactionData.id = transaction.id
 
     setLoading(true);
     const response = await createUpdateTransaction(transactionData);

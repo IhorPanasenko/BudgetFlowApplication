@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 const CategoryListModal = () => {
   const { user } = useAuth();
@@ -29,33 +30,39 @@ const CategoryListModal = () => {
     router.push("/(modals)/categoryModal");
   };
 
-  const renderItem = ({ item }: { item: CategoryType }) => {
+  const renderItem = ({ item, index }: { item: CategoryType, index: number }) => {
     const IconComponent = item.icon
       ? Icons[item.icon as keyof typeof Icons]
       : undefined;
 
     return (
-      <View style={styles.categoryRow}>
-        <View style={[styles.iconBox, { backgroundColor: item.bgColor }]}>
-          {IconComponent ? (
-            <IconComponent size={22} color={colors.white} weight="fill" />
-          ) : null}
+      <Animated.View
+        entering={FadeInDown.delay(index * 100)
+          .springify()
+          .damping(14)}
+      >
+        <View style={styles.categoryRow}>
+          <View style={[styles.iconBox, { backgroundColor: item.bgColor }]}>
+            {IconComponent ? (
+              <IconComponent size={22} color={colors.white} weight="fill" />
+            ) : null}
+          </View>
+          <Typo size={16} style={{ flex: 1 }}>
+            {item.label}
+          </Typo>
+          <Typo size={14} color={colors.neutral400} style={{ marginRight: 8 }}>
+            {item.type}
+          </Typo>
+          <>
+            <TouchableOpacity
+              onPress={() => openCategory(item)}
+              style={{ marginRight: 8 }}
+            >
+              <Icons.Pencil size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </>
         </View>
-        <Typo size={16} style={{ flex: 1 }}>
-          {item.label}
-        </Typo>
-        <Typo size={14} color={colors.neutral400} style={{ marginRight: 8 }}>
-          {item.type}
-        </Typo>
-        <>
-          <TouchableOpacity
-            onPress={() => openCategory(item)}
-            style={{ marginRight: 8 }}
-          >
-            <Icons.Pencil size={20} color={colors.primary} />
-          </TouchableOpacity>
-        </>
-      </View>
+      </Animated.View>
     );
   };
 
@@ -72,7 +79,7 @@ const CategoryListModal = () => {
         <FlatList
           data={categories}
           keyExtractor={(item) => item.id!}
-          renderItem={renderItem}
+          renderItem={({item, index}) => renderItem({item, index})}
           contentContainerStyle={{ paddingVertical: spacingY._10 }}
           ListEmptyComponent={
             <Typo

@@ -97,7 +97,7 @@ const CategoryModal = () => {
   const deleteAlert = () => {
     Alert.alert(
       "Confirm",
-      "Are you sure you want to do this?\nThis action will remove all the transactions related to the wallet",
+      "Are you sure you want to delete this category?",
       [
         {
           text: "Cancel",

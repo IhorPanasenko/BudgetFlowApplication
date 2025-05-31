@@ -52,11 +52,12 @@ const WalletModal = () => {
     }
 
     const data: WalletType = {
-      id: wallet.id ?? undefined,
       name,
       image,
       uid: user?.uid,
     };
+
+    if (wallet.id) data.id = wallet.id;
 
     setLoading(true);
     const res = await createUpdateWallet(data);
