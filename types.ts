@@ -80,13 +80,13 @@ export type TransactionType = {
 };
 
 export type CategoryType = {
-  id: any;
+  id?: string;
   label: string;
   value: string;
   icon: string;
   bgColor: string;
   type: string;
-  uid: string;
+  uid?: string;
 };
 
 export type ExpenseCategoriesType = {

@@ -42,12 +42,12 @@ const WalletModal = () => {
   const onSubmit = async () => {
     let { name, image } = wallet;
     if (!name.trim()) {
-      Alert.alert("User", "Name cannot be empty");
+      Alert.alert("Wallet", "Name cannot be empty");
       return;
     }
 
     if (!image) {
-      Alert.alert("User", "Please, upload an image");
+      Alert.alert("Wallet", "Please, upload an image");
       return;
     }
 

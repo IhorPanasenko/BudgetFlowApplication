@@ -23,7 +23,11 @@ const StackLayout = () => {
         options={{ presentation: "modal" }}
       />
       <Stack.Screen
-        name="(modals)/categoryhModal"
+        name="(modals)/categoryModal"
+        options={{ presentation: "modal" }}
+      />
+      <Stack.Screen
+        name="(modals)/categoryListModal"
         options={{ presentation: "modal" }}
       />
     </Stack>

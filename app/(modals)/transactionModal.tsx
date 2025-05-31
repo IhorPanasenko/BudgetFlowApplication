@@ -242,7 +242,7 @@ const TransactionModal = () => {
                 Category
               </Typo>
               <TouchableOpacity
-                onPress={() => router.push("/(modals)/categoryModal")}
+                onPress={() => router.push("/(modals)/categoryListModal")}
               >
                 <Icons.PlusCircle
                   size={verticalScale(33)}
