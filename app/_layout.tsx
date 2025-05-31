@@ -34,6 +34,10 @@ const StackLayout = () => {
         name="(modals)/iconPickerModal"
         options={{ presentation: "modal" }}
       />
+       <Stack.Screen
+        name="(modals)/downloadReportModal"
+        options={{ presentation: "modal" }}
+      />
     </Stack>
   );
 };

@@ -1,7 +1,9 @@
+import Button from "@/components/Button";
 import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import TransactionList from "@/components/TransactionList";
+import Typo from "@/components/Typo";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
 import {
@@ -11,11 +13,13 @@ import {
 } from "@/services/transactionService";
 import { scale, verticalScale } from "@/utilts/styling";
 import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 
 const Statistics = () => {
+  const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
   const [chartData, setChartData] = useState([]);
   const [chartLoading, setChartLoading] = useState(false);
@@ -82,7 +86,6 @@ const Statistics = () => {
         <View style={styles.header}>
           <Header title="Statistics" />
         </View>
-
         <ScrollView
           contentContainerStyle={{
             gap: spacingY._20,
@@ -104,7 +107,6 @@ const Statistics = () => {
             style={styles.segmentStyle}
             fontStyle={{ ...styles.segmentFontStyle, color: colors.white }}
           />
-
           <View style={styles.chartContainer}>
             {chartData.length > 0 ? (
               <BarChart
@@ -142,12 +144,22 @@ const Statistics = () => {
           </View>
           {/* Transactions */}
           <View>
-            <TransactionList
-              title="Transactions"
-              emptyListMessage="No transactions found"
-              data={transactions}
-              loading={false}
-            />
+            <Button
+              onPress={() => router.push("/(modals)/downloadReportModal")}
+              style={{ marginTop: spacingY._5, height: verticalScale(45) }}
+            >
+              <Typo color={colors.black} fontWeight="700">
+                Download Report
+              </Typo>
+            </Button>
+            <View style={{marginTop: spacingY._20}}>
+              <TransactionList
+                title="Transactions"
+                emptyListMessage="No transactions found"
+                data={transactions}
+                loading={false}
+              />
+            </View>
           </View>
         </ScrollView>
       </View>
