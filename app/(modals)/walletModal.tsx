@@ -22,25 +22,27 @@ const WalletModal = () => {
   const [wallet, setWallet] = useState<WalletType>({
     name: "",
     image: null,
+    amount: 0,
   });
 
   const [loading, setLoading] = useState(false);
 
-  const oldWallet: { name: string; image: string; id: string } =
+  const oldWallet: Partial<{ name: string; image: string; amount: string | number; id: string }> =
     useLocalSearchParams();
 
   useEffect(() => {
     if (oldWallet.id) {
       setWallet({
-        name: oldWallet.name,
+        name: oldWallet.name ?? "",
         image: oldWallet.image,
         id: oldWallet.id,
+        amount: oldWallet.amount ? Number(oldWallet.amount) : 0,
       });
     }
   }, []);
 
   const onSubmit = async () => {
-    let { name, image } = wallet;
+    let { name, image, amount } = wallet;
     if (!name.trim()) {
       Alert.alert("Wallet", "Name cannot be empty");
       return;
@@ -51,12 +53,19 @@ const WalletModal = () => {
       return;
     }
 
+    if (!amount || amount < 0) {
+      Alert.alert("Wallet", "You can't set amount lower than 0");
+      return
+    }
+
     const data: WalletType = {
       name,
       image,
+      amount: Number(amount),
       uid: user?.uid,
     };
 
+    console.log('waleltData:', data);
     if (wallet.id) data.id = wallet.id;
 
     setLoading(true);
@@ -118,6 +127,16 @@ const WalletModal = () => {
               value={wallet?.name}
               onChangeText={(value) => {
                 setWallet({ ...wallet, name: value });
+              }}
+            />
+          </View>
+           <View style={styles.inputContainer}>
+            <Typo color={colors.neutral200}>Amount</Typo>
+            <Input
+              placeholder="0"
+              value={wallet?.amount?.toString() ?? ""}
+              onChangeText={(value) => {
+                setWallet({ ...wallet, amount: Number(value) });
               }}
             />
           </View>

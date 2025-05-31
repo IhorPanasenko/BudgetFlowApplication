@@ -5,13 +5,20 @@ import { colors, spacingY } from "@/contansts/theme";
 import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+    FlatList,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 const ICON_NAMES = Object.keys(Icons).filter(
   (name) => typeof Icons[name as keyof typeof Icons] === "function"
 );
 
-export const IconPickerModal = ({ onSelect }) => {
+export const IconPickerModal = () => {
   const [search, setSearch] = useState("");
   const router = useRouter();
 
@@ -26,13 +33,20 @@ export const IconPickerModal = ({ onSelect }) => {
     rows.push(filteredIcons.slice(i, i + 2));
   }
 
+    const handleSelect = (iconName: string) => {
+    router.replace({
+        pathname: "/(modals)/categoryModal",
+        params: { selectedIcon: iconName },
+    });
+    };
+
   return (
     <ModalWrapper>
-        <Header
-          title="Icons List"
-          leftIcon={<BackButton />}
-          style={{ marginBottom: spacingY._10 }}
-        />
+      <Header
+        title="Icons List"
+        leftIcon={<BackButton />}
+        style={{ marginBottom: spacingY._10 }}
+      />
       <View style={styles.modalContainer}>
         <TextInput
           style={styles.searchInput}
@@ -52,10 +66,7 @@ export const IconPickerModal = ({ onSelect }) => {
                   <TouchableOpacity
                     key={iconName}
                     style={styles.iconBox}
-                    onPress={() => {
-                      onSelect(iconName);
-                      router.back();
-                    }}
+                    onPress={() => handleSelect(iconName)}
                   >
                     <IconComponent size={28} color={colors.primary} />
                     <Text style={styles.iconLabel}>{iconName}</Text>
@@ -73,6 +84,8 @@ export const IconPickerModal = ({ onSelect }) => {
     </ModalWrapper>
   );
 };
+
+export default IconPickerModal;
 
 const styles = StyleSheet.create({
   modalContainer: {

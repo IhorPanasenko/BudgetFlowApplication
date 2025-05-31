@@ -16,7 +16,7 @@ import { scale, verticalScale } from "@/utilts/styling";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { doc, getDoc } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -85,6 +85,18 @@ const CategoryModal = () => {
     }
   }, [categoryId]);
 
+  useEffect(() => {
+  if (params.selectedIcon) {
+    setIcon(params.selectedIcon as string);
+    router.setParams({ selectedIcon: undefined });
+  }
+}, [params.selectedIcon]);
+
+  const iconOptions = useMemo(() => {
+    if (!icon) return ICON_OPTIONS;
+    return [icon, ...ICON_OPTIONS.filter(i => i !== icon)];
+  }, [icon]);
+
   const onDelete = async () => {
     if (!categoryId) return;
     setLoading(true);
@@ -133,7 +145,7 @@ const CategoryModal = () => {
     setLoading(false);
 
     if (res.success) {
-      router.back();
+      router.replace("/(modals)/categoryListModal");
     } else {
       Alert.alert("Category", res.msg || "Something went wrong");
     }
@@ -185,7 +197,7 @@ const CategoryModal = () => {
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200}>Icon</Typo>
             <View style={styles.row}>
-              {ICON_OPTIONS.map((iconName) => {
+              {iconOptions.map((iconName) => {
                 const IconComponent = Icons[iconName as keyof typeof Icons];
                 return (
                   <TouchableOpacity
@@ -210,7 +222,10 @@ const CategoryModal = () => {
                   styles.iconBtn,
                   { borderColor: colors.primary, borderStyle: "dashed" },
                 ]}
-                onPress={() => router.push("/(modals)/iconPickerModal")}
+                onPress={() => router.push({
+                  pathname: "/(modals)/iconPickerModal",
+                  params: { from: "categoryModal" }
+                })}
               >
                 <Icons.MagnifyingGlass size={24} color={colors.primary} />
               </TouchableOpacity>

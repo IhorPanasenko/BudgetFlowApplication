@@ -11,7 +11,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { Timestamp } from "firebase/firestore";
 import * as Icons from 'phosphor-react-native';
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Loading from "./Loading";
@@ -27,6 +27,14 @@ const TransactionList = ({
   const router = useRouter();
 
   const { categories, loading: categoriesLoading } = useCategories(user?.uid);
+
+  const transactionsWithCategory = useMemo(() => {
+    if (!categories.length) return [];
+    return data.map((tx) => ({
+      ...tx,
+      category: categories.find((cat) => cat.id === tx.categoryId),
+    }));
+  }, [data, categories]);
 
   const handleClick = (item: TransactionType) => {
     router.push({
@@ -51,16 +59,14 @@ const TransactionList = ({
           {title}
         </Typo>
       )}
-
       <View style={styles.list}>
         <FlashList
-          data={data}
+          data={transactionsWithCategory}
           renderItem={({ item, index }) => (
             <TransactionItem
               item={item}
               index={index}
               handleClick={handleClick}
-              categories={categories}
             />
           )}
           estimatedItemSize={200}
@@ -89,10 +95,13 @@ const TransactionItem = ({
   item,
   index,
   handleClick,
-  categories
 }: TransactionItemProps) => {
-  const category = categories.find(cat => cat.id === item.categoryId);
-  const IconComponent = category ? Icons[category.icon as keyof typeof Icons] : Icons.Question;
+
+  const category = item.category;
+  const IconComponent =
+    category && typeof Icons[category.icon as keyof typeof Icons] === "function"
+      ? Icons[category.icon as keyof typeof Icons]
+      : Icons.Question;
   const bgColor = category?.bgColor || colors.neutral800;
   const label = category?.label || "Unknown";
   const type = category?.type || "Expense";

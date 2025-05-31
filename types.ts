@@ -79,13 +79,17 @@ export type TransactionType = {
   walletId: string;
 };
 
+export type TransactionWithCategoryType = TransactionType & {
+  category?: CategoryType;
+};
+
 export type CategoryType = {
   id?: string;
   label: string;
   value: string;
   icon: string;
   bgColor: string;
-  type: string;
+  type: "Expense" | "Income";
   uid?: string;
 };
 
@@ -94,17 +98,16 @@ export type ExpenseCategoriesType = {
 };
 
 export type TransactionListType = {
-  data: TransactionType[];
+  data: TransactionWithCategoryType[];
   title?: string;
   loading: boolean;
   emptyListMessage?: string;
 };
 
 export type TransactionItemProps = {
-  item: TransactionType;
+  item: TransactionWithCategoryType;
   index: number;
   handleClick: Function;
-  categories: CategoryType[];
 };
 
 export interface InputProps extends TextInputProps {
