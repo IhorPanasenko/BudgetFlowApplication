@@ -26,7 +26,13 @@ const CategoryListModal = () => {
     });
   };
 
-  const renderItem = ({ item, index }: { item: CategoryType, index: number }) => {
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: CategoryType;
+    index: number;
+  }) => {
     const IconComponent = item.icon
       ? Icons[item.icon as keyof typeof Icons]
       : undefined;
@@ -37,7 +43,11 @@ const CategoryListModal = () => {
           .springify()
           .damping(14)}
       >
-        <View style={styles.categoryRow}>
+        <TouchableOpacity
+          style={styles.categoryRow}
+          onPress={() => openCategory(item)}
+          activeOpacity={0.7}
+        >
           <View style={[styles.iconBox, { backgroundColor: item.bgColor }]}>
             {IconComponent ? (
               <IconComponent size={22} color={colors.white} weight="fill" />
@@ -49,15 +59,7 @@ const CategoryListModal = () => {
           <Typo size={14} color={colors.neutral400} style={{ marginRight: 8 }}>
             {item.type}
           </Typo>
-          <>
-            <TouchableOpacity
-              onPress={() => openCategory(item)}
-              style={{ marginRight: 8 }}
-            >
-              <Icons.Pencil size={20} color={colors.primary} />
-            </TouchableOpacity>
-          </>
-        </View>
+        </TouchableOpacity>
       </Animated.View>
     );
   };
@@ -75,7 +77,7 @@ const CategoryListModal = () => {
         <FlatList
           data={categories}
           keyExtractor={(item) => item.id!}
-          renderItem={({item, index}) => renderItem({item, index})}
+          renderItem={({ item, index }) => renderItem({ item, index })}
           contentContainerStyle={{ paddingVertical: spacingY._10 }}
           ListEmptyComponent={
             <Typo
