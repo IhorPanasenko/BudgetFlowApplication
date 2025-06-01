@@ -5,7 +5,9 @@ import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
+import { useCategories } from "@/hooks/useCategories";
 import useFetchData from "@/hooks/useFetchData";
+import { generateAndSharePDFReport } from "@/services/reportService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -40,6 +42,8 @@ const DownloadReportModal = () => {
     where("uid", "==", user?.uid),
     orderBy("date", "desc"),
   ]);
+
+  const { categories } = useCategories(user?.uid);
 
   const [transactionType, setTransactionType] = useState<
     "Both" | "Expense" | "Income"
@@ -81,44 +85,25 @@ const DownloadReportModal = () => {
     .filter(
       (tx) =>
         selectedWallets.includes(tx.walletId) &&
-        new Date(tx.date) >= fromDate &&
-        new Date(tx.date) <= toDate &&
+        new Date(tx.date as Date) >= fromDate &&
+        new Date(tx.date as Date) <= toDate &&
         (transactionType === "Both" || tx.type === transactionType)
     )
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => new Date(b.date as Date).getTime() - new Date(a.date as Date).getTime());
 
-  // Calculate balances before/after for each transaction
-  const getWalletTxsWithBalances = (walletId: string) => {
-    const wallet = wallets.find((w) => w.id === walletId);
-    if (!wallet) return [];
-    const txs = filteredTxs.filter((tx) => tx.walletId === walletId);
-    let balance = wallet.amount;
-    const txsWithBalances = txs.map((tx) => {
-      const after = balance;
-      const before =
-        tx.type === "Income" ? after - tx.amount : after + tx.amount;
-      balance = before;
-      return { ...tx, before, after };
-    });
-    return txsWithBalances;
-  };
-
-  // PDF generation logic
   const handleDownload = async () => {
     setLoading(true);
     try {
-      // 1. Prepare data for PDF
-      // 2. Generate PDF (use your PDF library)
-      // 3. Save PDF to device (expo-file-system)
-      // 4. Show success or error
-      Alert.alert(
-        "Report",
-        "PDF report generation is not implemented in this scaffold."
-      );
+      await generateAndSharePDFReport({
+        wallets: wallets.filter((w) => selectedWallets.includes(w.id!)),
+        filteredTxs,
+        categories,
+      });
     } catch (e) {
       Alert.alert("Error", "Failed to generate PDF report.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -151,7 +136,7 @@ const DownloadReportModal = () => {
                       : colors.neutral500,
                 },
               ]}
-              onPress={() => setSelectedWallets(wallets.map((w) => w.id))}
+              onPress={() => setSelectedWallets(wallets.map((w) => w.id!))}
             >
               <Typo color={colors.white}>All</Typo>
             </TouchableOpacity>
@@ -161,15 +146,15 @@ const DownloadReportModal = () => {
                 style={[
                   styles.optionButton,
                   {
-                    backgroundColor: selectedWallets.includes(w.id)
+                    backgroundColor: selectedWallets.includes(w.id!)
                       ? colors.primary
                       : colors.neutral800,
-                    borderColor: selectedWallets.includes(w.id)
+                    borderColor: selectedWallets.includes(w.id!)
                       ? colors.primary
                       : colors.neutral500,
                   },
                 ]}
-                onPress={() => toggleWallet(w.id)}
+                onPress={() => toggleWallet(w.id!)}
               >
                 <Typo color={colors.white}>{w.name}</Typo>
                 <Typo
