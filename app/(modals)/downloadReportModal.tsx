@@ -5,22 +5,21 @@ import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { colors, radius, spacingX, spacingY } from "@/contansts/theme";
 import { useAuth } from "@/context/authContext";
-import { useCategories } from "@/hooks/useCategories";
 import useFetchData from "@/hooks/useFetchData";
 import { generateAndSharePDFReport } from "@/services/reportService";
-import { TransactionType, WalletType } from "@/types";
+import { WalletType } from "@/types";
 import { scale, verticalScale } from "@/utilts/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { orderBy, where } from "firebase/firestore";
 import React, { useState } from "react";
 import {
-    Alert,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 // import your PDF library here
 
@@ -34,17 +33,6 @@ const DownloadReportModal = () => {
     where("uid", "==", user?.uid),
     orderBy("created", "desc"),
   ]);
-  const {
-    data: transactions,
-    loading: transactionsLoading,
-    error: fetchTransactionsError,
-  } = useFetchData<TransactionType>("transactions", [
-    where("uid", "==", user?.uid),
-    orderBy("date", "desc"),
-  ]);
-
-  const { categories } = useCategories(user?.uid);
-
   const [transactionType, setTransactionType] = useState<
     "Both" | "Expense" | "Income"
   >("Both");
@@ -73,33 +61,24 @@ const DownloadReportModal = () => {
   const [toDate, setToDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
 
-  // Toggle wallet selection
   const toggleWallet = (id: string) => {
     setSelectedWallets((prev) =>
       prev.includes(id) ? prev.filter((wid) => wid !== id) : [...prev, id]
     );
   };
 
-  // Filter transactions by selected wallets and date range
-  const filteredTxs = transactions
-    .filter(
-      (tx) =>
-        selectedWallets.includes(tx.walletId) &&
-        new Date(tx.date as Date) >= fromDate &&
-        new Date(tx.date as Date) <= toDate &&
-        (transactionType === "Both" || tx.type === transactionType)
-    )
-    .sort((a, b) => new Date(b.date as Date).getTime() - new Date(a.date as Date).getTime());
-
   const handleDownload = async () => {
     setLoading(true);
     try {
-      await generateAndSharePDFReport({
-        wallets: wallets.filter((w) => selectedWallets.includes(w.id!)),
-        filteredTxs,
-        categories,
+       await generateAndSharePDFReport({
+        walletIds: selectedWallets,
+        transactionType,
+        fromDate,
+        toDate,
+        userId: user?.uid || '',
       });
     } catch (e) {
+      console.log("Error from generateAndSharePdfReport ", e);
       Alert.alert("Error", "Failed to generate PDF report.");
     } finally {
       setLoading(false);
