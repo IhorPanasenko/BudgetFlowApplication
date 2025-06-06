@@ -40,9 +40,9 @@ const SearchModal = () => {
   const filteredTransactions = transactionsWithCategory.filter((item) => {
     if (search.trim().length > 1) {
       return (
-        item.category?.value.toLowerCase()?.includes(search.toLowerCase()) ||
-        item.category?.type.toLowerCase()?.includes(search.toLowerCase()) ||
-        item.description?.toLowerCase()?.includes(search.toLowerCase())
+        item.category?.value?.toLowerCase()?.includes(search?.toLowerCase()) ||
+        item.category?.type?.toLowerCase()?.includes(search?.toLowerCase()) ||
+        item.description?.toLowerCase()?.includes(search?.toLowerCase())
       );
     }
 
