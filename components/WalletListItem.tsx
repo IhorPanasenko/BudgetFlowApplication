@@ -25,6 +25,7 @@ const WalletListItem = ({
         id: item?.id,
         name: item?.name,
         image: item?.image,
+        amount: item?.amount,
       },
     });
   };
