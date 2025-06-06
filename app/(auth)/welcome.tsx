@@ -18,7 +18,7 @@ const Welcome = () => {
             onPress={() => router.push("/(auth)/login")}
             style={styles.loginButton}
           >
-            <Typo fontWeight={"500"}>Вхід</Typo>
+            <Typo fontWeight={"500"}>Login</Typo>
           </TouchableOpacity>
 
           <Animated.Image
@@ -36,11 +36,11 @@ const Welcome = () => {
             style={{ alignItems: "center" }}
           >
             <Typo size={25} fontWeight={"800"} color={colors.textLight}>
-              Завжди контролюй
+              Always in control
             </Typo>
 
             <Typo size={25} fontWeight={"800"} color={colors.textLight}>
-              свої фінанси
+              of your finances
             </Typo>
           </Animated.View>
 
@@ -53,7 +53,7 @@ const Welcome = () => {
           >
             <Button onPress={() => router.push("/(auth)/register")}>
               <Typo size={22} color={colors.neutral900} fontWeight={"600"}>
-                Почати
+                Start
               </Typo>
             </Button>
           </Animated.View>
