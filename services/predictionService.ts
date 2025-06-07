@@ -2,7 +2,7 @@ export async function fetchForecast(
   uid: string
 ): Promise<ForecastResponse | null> {
   try {
-    const response = await fetch("http://localhost:8000/forecast", {
+    const response = await fetch("http://10.0.2.2:8000/forecast", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

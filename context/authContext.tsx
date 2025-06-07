@@ -17,7 +17,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
   const [user, setUser] = useState<UserType>(null)
-  const [forecast, setForecast] = useState<number | null>(null)
+  const [forecast, setForecast] = useState<any | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         await updateUserData(firebaseUser.uid)
         const forecastResult = await fetchForecast(firebaseUser.uid)
         console.log("Forecast result:", forecastResult)
-        setForecast(forecastResult?.prediction ?? null)
+        setForecast(forecastResult ?? null)
 
         router.replace("/(tabs)")
       } else {

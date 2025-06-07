@@ -12,10 +12,10 @@ import { useRouter } from "expo-router";
 import { limit, orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const Home = () => {
-  const { user } = useAuth();
+  const { user, forecast } = useAuth();
   const router = useRouter();
 
   const transactionContraints = [
@@ -29,6 +29,11 @@ const Home = () => {
     loading: transactionsLoading,
     error,
   } = useFetchData<TransactionType>("transactions", transactionContraints);
+
+  const handleShowForecast = () => {
+    console.log(forecast);
+    Alert.alert("Expenses forecast", `Forecasted value of expenses for the next month: $${forecast.prediction}.\nExpenses status: ${forecast.status}`);
+  }
 
   return (
     <ScreenWrapper>
@@ -62,7 +67,13 @@ const Home = () => {
           <View>
             <HomeCard></HomeCard>
           </View>
-
+          <View>
+           <Button loading={false} onPress={handleShowForecast}>
+            <Typo fontWeight={500} color={colors.black} size={21}>
+              See next month forecast
+            </Typo>
+          </Button>
+          </View>
           <TransactionList
             data={recentTransactions}
             loading={transactionsLoading}
